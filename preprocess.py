@@ -1,14 +1,13 @@
 """
 Препроцессинг датасета Stack Overflow для инвертированного индекса.
 
-Читает Questions.csv, токенизирует текст (title + body),
-сохраняет результат в JSONL-файл.
+Читает Questions.csv, извлекает и нормализует Title (заголовки),
+сохраняет результат в JSONL-файл для построчного чтения в C.
 
 Запуск:
     python preprocess.py --input data/Questions.csv --output data/processed/docs.jsonl
     python preprocess.py --input data/Questions.csv --output data/processed/docs.jsonl --limit 50000
 """
-# Сори если не работает я тестил на mock данных :)
 
 import argparse
 import csv
@@ -17,12 +16,16 @@ import re
 import sys
 from pathlib import Path
 
+# Снимаем лимит на размер поля, чтобы скрипт не падал на длинных вопросах
+csv.field_size_limit(sys.maxsize)
+
+# Компилируем регулярное выражение глобально для скорости
+# Вытаскиваем только непрерывные последовательности букв и цифр
+TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 
 def tokenize(text: str) -> list[str]:
-    text = text.lower()
-    text = re.sub(r"[^\w\s]", " ", text)
-    return [w for w in text.split() if len(w) > 2]
-
+    # Приводим текст к нижнему регистру и извлекаем токены за один проход O(N)
+    return TOKEN_PATTERN.findall(text.lower())
 
 def preprocess(input_path: Path, output_path: Path, limit: int | None) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -36,12 +39,15 @@ def preprocess(input_path: Path, output_path: Path, limit: int | None) -> None:
 
             doc_id = row.get("Id", "")
             title = row.get("Title", "")
-            body = row.get("Body", "")
-
-            tokens = tokenize(title + " " + body)
+            
+            # Строго индексируем только заголовок (Title). 
+            # Парсинг Body приведет к мусору из HTML-тегов и утечке RAM.
+            tokens = tokenize(title)
+            
             if not tokens:
                 continue
 
+            # Записываем валидный JSON в одну строку
             out.write(json.dumps({"doc_id": doc_id, "title": title, "tokens": tokens}) + "\n")
             count += 1
 
@@ -50,7 +56,6 @@ def preprocess(input_path: Path, output_path: Path, limit: int | None) -> None:
 
     print(f"Готово. Всего документов: {count}", file=sys.stderr)
     print(f"Результат: {output_path}", file=sys.stderr)
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Препроцессинг Stack Overflow датасета")
@@ -64,7 +69,6 @@ def main() -> None:
         sys.exit(1)
 
     preprocess(args.input, args.output, args.limit)
-
 
 if __name__ == "__main__":
     main()
