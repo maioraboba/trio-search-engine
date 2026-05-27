@@ -41,15 +41,15 @@ void freeIndex(Index* idx) {
 
     switch(idx->type){
         case TREE_AVL:
-            freeAVLTree((TREE_AVL*) idx->tree);
+            freeAVLTree((AVLTree*) idx->tree);
             break;
 
         case TREE_RB:
-            freeRBTree((TREE_RB) idx->tree);
+            freeRBTree((RBTree*) idx->tree);
             break;
 
         case TREE_BTREE:
-            freeBTree((TREE_BTREE*) idx->tree);
+            freeBTree((BTree*) idx->tree);
             break;
     }
  
@@ -57,21 +57,20 @@ void freeIndex(Index* idx) {
 }
 
 void insertTerm(Index* idx, const char* term, int doc_id, const char* title) {
-
     if (!idx) return;
 
     switch (idx->type){
         case TREE_AVL:
-        avlInsert((TREE_AVL*) idx->tree, term, doc_id, title);
-        break;
+            avlInsert((AVLTree*) idx->tree, term, doc_id, title);
+            break;
 
         case TREE_RB:
-        rbInsert((TREE_RB*) idx->tree, term, doc_id, title);
-        break;
+            rbInsert((RBTree*) idx->tree, term, doc_id, title);
+            break;
 
         case TREE_BTREE:
-        btreeInsert((TREE_BTREE*) idx->tree, term, doc_id, title);
-        break;
+            btreeInsert((BTree*) idx->tree, term, doc_id, title);
+            break;
     }
 }
 
@@ -155,4 +154,14 @@ Index* loadIndex(const char* path, TreeType type) {
 
     fclose(in);
     return idx;
+}
+
+Vector* lookupTerm(const Index* idx, const char* term) {
+    if (!idx || !term) return NULL;
+    switch (idx->type) {
+        case TREE_AVL: return avlSearch((AVLTree*)idx->tree, term);
+        case TREE_RB: return rbSearch((RBTree*)idx->tree, term);
+        case TREE_BTREE: return btreeSearch((BTree*)idx->tree, term);
+        default: return NULL;
+    }
 }
