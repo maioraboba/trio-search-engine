@@ -97,7 +97,7 @@ int appendVectorItem(Vector *vector, void *el);
   перераспределена.
 ===============================================================================
 */
-void *getVectorItem(Vector *vector, size_t index);
+void *getVectorItem(const Vector *vector, size_t index);
 
 /*
 ===============================================================================

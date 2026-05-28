@@ -28,15 +28,21 @@ static int resize(Vector *vector, bool increase)
     if (vector == NULL) return -1;
 
     if (increase == true) {
-        vector->data = realloc(vector->data, (vector->capacity * 2) * vector->elem_size);
-        if (vector->data == NULL) return -1;
-        vector->capacity = vector->capacity * 2;
+        void *new_data = realloc(vector->data, (vector->capacity * 2) * vector->elem_size);
+        if (new_data == NULL) {
+            return -1;
+        }
+        vector->data = new_data;
+        vector->capacity *= 2;
     }
     
     else {
-        vector->data = realloc(vector->data, (vector->capacity / 2) * vector->elem_size);
-        if (vector->data == NULL) return -1;
-        vector->capacity = vector->capacity / 2;
+        void *new_data = realloc(vector->data, (vector->capacity / 2) * vector->elem_size);
+        if (new_data == NULL) {
+            return -1;
+        }
+        vector->data = new_data;
+        vector->capacity /= 2;
     }
 
     return 0;
@@ -64,6 +70,32 @@ Vector *createVector(size_t elem_size)
     return vector;
 }
 
+int resizeVector(Vector *vector, size_t new_capacity) {
+    if (vector == NULL) {
+        fprintf(stderr, "Vector is NULL!");
+        return -1;
+    }
+
+    void *new_data = realloc(vector->data, new_capacity * vector->elem_size);
+
+    if (!new_data) {
+        fprintf(stderr, "Memory allocation failed!");
+        return -1;
+    }
+
+    vector->capacity = new_capacity;
+    vector->data = new_data;
+
+    return 0;
+}
+
+int reserveVector(Vector *vector, size_t new_capacity) {
+    if (new_capacity > vector->capacity) {
+        return resizeVector(vector, new_capacity);
+    }
+    return 0;
+}
+
 int appendVectorItem(Vector *vector, void *el)
 {
     bool increase;
@@ -75,7 +107,7 @@ int appendVectorItem(Vector *vector, void *el)
     return 0;
 }
 
-void *getVectorItem(Vector *vector, size_t index)
+void *getVectorItem(const Vector *vector, size_t index)
 {
     if (vector == NULL || index >= vector->size){
         return NULL;
@@ -105,13 +137,17 @@ void *popVectorItem(Vector *vector, size_t index)
     void* el = getVectorItem(vector, index);
     void* cpy = malloc(vector->elem_size);
     if (cpy == NULL){
-        free(cpy);
         return NULL;
     }
     memcpy(cpy, el, vector->elem_size);
     memmove(el, (char*)el + vector->elem_size, (vector->size - index - 1) * vector->elem_size);
 
     vector->size -= 1;
+
+    bool increase;
+    if (needToResize(vector, &increase)) {
+        resize(vector, increase);
+    }
 
     return cpy;
 }
