@@ -16,8 +16,8 @@ import re
 import sys
 from pathlib import Path
 
-# Снимаем лимит на размер поля, чтобы скрипт не падал на длинных вопросах
-csv.field_size_limit(sys.maxsize)
+# 2147483647 - это 2^31 - 1, максимальное значение 32-битного знакового целого
+csv.field_size_limit(2147483647)
 
 # Компилируем регулярное выражение глобально для скорости
 # Вытаскиваем только непрерывные последовательности букв и цифр
@@ -31,7 +31,7 @@ def preprocess(input_path: Path, output_path: Path, limit: int | None) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     count = 0
-    with open(input_path, encoding="utf-8") as f, open(output_path, "w", encoding="utf-8") as out:
+    with open(input_path, encoding="utf-8", errors="replace") as f, open(output_path, "w", encoding="utf-8") as out:
         reader = csv.DictReader(f)
         for row in reader:
             if limit is not None and count >= limit:
@@ -42,7 +42,8 @@ def preprocess(input_path: Path, output_path: Path, limit: int | None) -> None:
             
             # Строго индексируем только заголовок (Title). 
             # Парсинг Body приведет к мусору из HTML-тегов и утечке RAM.
-            tokens = tokenize(title)
+            # list(dict.fromkeys(...)) сохраняет порядок, но удаляет дубли
+            tokens = list(dict.fromkeys(tokenize(title)))
             
             if not tokens:
                 continue
