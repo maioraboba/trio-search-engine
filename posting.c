@@ -47,7 +47,7 @@ Vector* clonePostingList(const Vector* src) {
 
     for (size_t i = 0; i < src->size; i++)
     {
-        appendVectorItem(clone, getVectorItem((Vector*)src, i));
+        appendVectorItem(clone, getVectorItem(src, i));
     }
 
 
