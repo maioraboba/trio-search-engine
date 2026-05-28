@@ -12,7 +12,7 @@ static BTreeNode* createBTreeNode(int is_leaf)
     if (node == NULL)
      {
         printf("Не удалось выделить память под узел\n");
-        exit(1);
+        return NULL;
     }
 
     // инициализируем поля
@@ -42,7 +42,7 @@ BTree* createBTree(void)
     BTree* tree = malloc(sizeof(BTree));
     if (tree == NULL) {
         printf("Не удалось выделить память под дерево\n");
-        exit(1);
+        return NULL;
     }
 
     // инициализируем поля
@@ -77,7 +77,7 @@ static void freeBTreeNode(BTreeNode* node)
     {
         if (node->keys[i] != NULL) 
         {
-            free(node->keys[i]);
+            free((void*)node->keys[i]);
         }
         
         // очищаем Posting List
@@ -110,7 +110,7 @@ void freeBTree(BTree* tree)
 }
 
 
-static Vector* btreeNodeSearch(BTreeNode* node, const char* key)
+static const Vector* btreeNodeSearch(BTreeNode* node, const char* key)
 {
     if (node == NULL)
     {
@@ -144,7 +144,7 @@ static Vector* btreeNodeSearch(BTreeNode* node, const char* key)
 }
 
 
-Vector* btreeSearch(const BTree* tree, const char* key)
+const Vector* btreeSearch(const BTree* tree, const char* key)
 {
     if (tree == NULL || tree->root == NULL)
     {
@@ -216,7 +216,7 @@ static void btreeSplitChild(BTreeNode* parent, int index, BTreeNode* child)
 }
 
 
-static void btreeInsertNonFull(BTreeNode* node, const char* key, int doc_id, const char* title) {
+static void btreeInsertNonFull(BTreeNode* node, const char* key, int doc_id, const char* title, int* tree_size) {
     // проверяем существует ли такое слово в узле
     for (int j = 0; j < node->n; j++) 
     {
@@ -246,7 +246,9 @@ static void btreeInsertNonFull(BTreeNode* node, const char* key, int doc_id, con
         // вставляем новое слово и создаем его вектора
         node->keys[index + 1] = strdup(key); 
         node->postings[index + 1] = createPostingList();
-        appendPosting(node->postings[index + 1], doc_id, title); 
+        appendPosting(node->postings[index + 1], doc_id, title);
+        
+        (*tree_size)++;
 
         node->n++; 
     } 
@@ -285,7 +287,7 @@ static void btreeInsertNonFull(BTreeNode* node, const char* key, int doc_id, con
         }
 
         // рекурсивно вызываем для спуска дальше
-        btreeInsertNonFull(node->children[index], key, doc_id, title);
+        btreeInsertNonFull(node->children[index], key, doc_id, title, tree_size);
     }
 }
 
@@ -310,14 +312,14 @@ void btreeInsert(BTree* tree, const char* key, int doc_id, const char* title)
         
         // сплитуем старый корень и запускаем вставку
         btreeSplitChild(new_root, 0, root);
-        btreeInsertNonFull(new_root, key, doc_id, title);
+        btreeInsertNonFull(new_root, key, doc_id, title, &tree->size);
     } 
     
     
     // если корень не забит - запускаем вставку 
     else 
     {
-        btreeInsertNonFull(root, key, doc_id, title);
+        btreeInsertNonFull(root, key, doc_id, title, &tree->size);
     }
 }
 

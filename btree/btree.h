@@ -7,7 +7,7 @@
 #define BTREE_MAX_CH   (2 * BTREE_T)
 
 typedef struct BTreeNode {
-    char*             keys[BTREE_MAX_KEYS];
+    const char*       keys[BTREE_MAX_KEYS];
     Vector*           postings[BTREE_MAX_KEYS];
     struct BTreeNode* children[BTREE_MAX_CH];
     int               n;
@@ -22,8 +22,8 @@ typedef struct {
 BTree*  createBTree(void);
 void    freeBTree(BTree* tree);
 
-void    btreeInsert(BTree* tree, const char* key, int doc_id, const char* title);
-Vector* btreeSearch(const BTree* tree, const char* key);
+void          btreeInsert(BTree* tree, const char* key, int doc_id, const char* title);
+const Vector* btreeSearch(const BTree* tree, const char* key);
 void    btreeTraverse(
     const BTree* tree,
     void (*visit)(const char* key, Vector* postings, void* ctx),
