@@ -8,7 +8,7 @@ static RBNode* createRBNode(RBTree* tree, const char* key){
     RBNode* node = malloc(sizeof(RBNode));
     if (node == NULL){
         printf("error malloc RBNode");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     node->key = strdup(key);
@@ -25,11 +25,17 @@ RBTree* createRBTree(void){
     RBTree* tree = malloc(sizeof(RBTree));
     if (tree == NULL){
         printf("error malloc RBTree");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     // все листья дерева указывают на sentinel узел, он всегда чёрный
     tree->nil = malloc(sizeof(RBNode));
+    if (tree->nil == NULL) {
+        printf("error malloc RBTree sentinel");
+        free(tree);
+        return NULL;
+    }
+
     tree->nil->color = RB_BLACK;
     tree->nil->key = NULL;
     tree->nil->postings = NULL;
@@ -47,7 +53,7 @@ static void freeRBNode(RBTree* tree, RBNode* node){
 
     freeRBNode(tree, node->left);
     freeRBNode(tree, node->right);
-    free(node->key);
+    free((void*)node->key);
     vectorFree(node->postings);
     free(node);
 }
@@ -181,7 +187,7 @@ void rbInsert(RBTree* tree, const char* key, int doc_id, const char* title){
     rbInsertFixup(tree, new_node);
 }
 
-Vector* rbSearch(const RBTree* tree, const char* key){
+const Vector* rbSearch(const RBTree* tree, const char* key){
     if (tree == NULL) return NULL;
 
     RBNode* node = tree->root;
@@ -196,7 +202,7 @@ Vector* rbSearch(const RBTree* tree, const char* key){
     return NULL;
 }
 
-static void rbNodeTraverse(RBTree* tree, RBNode* node, void (*visit)(const char*, Vector*, void*), void* ctx){
+static void rbNodeTraverse(const RBTree* tree, RBNode* node, void (*visit)(const char*, Vector*, void*), void* ctx){
     if (node == tree->nil) return;
     
     // симметричный обход dfs
@@ -211,5 +217,5 @@ void rbTraverse(
     void* ctx
 ){
     if (tree == NULL) return;
-    rbNodeTraverse((RBTree*)tree, tree->root, visit, ctx);
+    rbNodeTraverse(tree, tree->root, visit, ctx);
 }

@@ -6,7 +6,7 @@
 typedef enum { RB_RED, RB_BLACK } RBColor;
 
 typedef struct RBNode {
-    char*           key;
+    const char*     key;
     RBColor         color;
     Vector*         postings;
     struct RBNode*  left;
@@ -23,8 +23,8 @@ typedef struct {
 RBTree* createRBTree(void);
 void    freeRBTree(RBTree* tree);
 
-void    rbInsert(RBTree* tree, const char* key, int doc_id, const char* title);
-Vector* rbSearch(const RBTree* tree, const char* key);
+void          rbInsert(RBTree* tree, const char* key, int doc_id, const char* title);
+const Vector* rbSearch(const RBTree* tree, const char* key);
 void    rbTraverse(
     const RBTree* tree,
     void (*visit)(const char* key, Vector* postings, void* ctx),
