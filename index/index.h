@@ -9,10 +9,10 @@ typedef struct {
     TreeType type;
 } Index;
 
-Index*   createIndex(TreeType type);
-void     insertTerm(Index* idx, const char* term, int doc_id, const char* title);
-Vector*  lookupTerm(const Index* idx, const char* term);
-void     indexDocument(Index* idx, int doc_id, const char* title,
+Index*         createIndex(TreeType type);
+void           insertTerm(Index* idx, const char* term, int doc_id, const char* title);
+const Vector*  lookupTerm(const Index* idx, const char* term);
+void           indexDocument(Index* idx, int doc_id, const char* title,
                        const char** tokens, int n_tokens);
 void     traverseIndex(
     const Index* idx,

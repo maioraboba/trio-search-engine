@@ -32,6 +32,11 @@ Index* createIndex(TreeType type) {
             break;
     }
 
+    if (idx->tree == NULL) {
+        free(idx); // очищаем обертку, если дерево не создалось
+        return NULL;
+    }
+
     return idx;
 }
 
@@ -145,7 +150,7 @@ Index* loadIndex(const char* path, TreeType type) {
     while (fscanf(in, "%255s\t%zu\n", term, &count) == 2) {
         for (size_t i = 0; i < count; i++) {
             int doc_id;
-            char title[256];
+            char title[MAX_TITLE_LEN];
             if (fscanf(in, "%d\t%255[^\n]\n", &doc_id, title) == 2) {
                 insertTerm(idx, term, doc_id, title);
             }
@@ -156,7 +161,7 @@ Index* loadIndex(const char* path, TreeType type) {
     return idx;
 }
 
-Vector* lookupTerm(const Index* idx, const char* term) {
+const Vector* lookupTerm(const Index* idx, const char* term) {
     if (!idx || !term) return NULL;
     switch (idx->type) {
         case TREE_AVL: return avlSearch((AVLTree*)idx->tree, term);
