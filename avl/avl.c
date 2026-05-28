@@ -9,7 +9,7 @@ AVLNode* createAVLNode(const char* key){
     AVLNode *avl_node = malloc(sizeof(AVLNode));
     if (avl_node == NULL){
         printf("error malloc AVLNode");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     avl_node->height = 0;
@@ -25,7 +25,7 @@ AVLTree* createAVLTree(void){
     AVLTree *avl_tree = malloc(sizeof(AVLTree));
     if (avl_tree == NULL){
         printf("error malloc AVLTree");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     avl_tree->size = 0;
@@ -39,7 +39,7 @@ void freeAVLNode(AVLNode* node){
 
     freeAVLNode(node->left); // рекурсия в левую ветку
     freeAVLNode(node->right); // рекурсия в правую ветку
-    free(node->key);
+    free((void*)node->key);
     vectorFree(node->postings);
     free(node);
 }
@@ -114,6 +114,7 @@ static AVLNode* avlNodeInsert(AVLNode* node, const char* key, int doc_id, const 
     int difference = strcmp(key, node->key);
     if (difference == 0){ // если ключи совпадают то добавляем в posting
         appendPosting(node->postings, doc_id, title);
+        return node;
     } else if (difference > 0){ // если искомый ключ ниже по алфавитному порядку то идем вправое ребро
         node->right = avlNodeInsert(node->right, key, doc_id, title, tree_size);
     } else { // иначе в левое ребро
@@ -129,7 +130,7 @@ void avlInsert(AVLTree* tree, const char* key, int doc_id, const char* title){
     tree->root = avlNodeInsert(tree->root, key, doc_id, title, &tree->size);
 }
 
-Vector* avlSearch(const AVLTree* tree, const char* key){
+const Vector* avlSearch(const AVLTree* tree, const char* key){
     if (tree == NULL) return NULL;
 
     AVLNode *node = tree->root;
