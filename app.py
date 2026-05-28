@@ -30,7 +30,7 @@ from pathlib import Path
 
 import streamlit as st  # type: ignore[import-untyped]
 
-APP_BINARY = Path(__file__).parent / "app"
+APP_BINARY = Path(__file__).parent / ("app.exe" if os.name == "nt" else "app")
 
 st.set_page_config(page_title="Stack Overflow Search", layout="wide")
 st.title("Stack Overflow Search")
