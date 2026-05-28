@@ -5,7 +5,7 @@
 #include <time.h>
 
 // Безопасное глубокое копирование (защита от двойного освобождения)
-static Vector* safeCloneList(Vector* src) {
+static Vector* safeCloneList(const Vector* src) {
     if (!src) return createPostingList();
     Vector* copy = createPostingList();
     for (size_t i = 0; i < src->size; i++) {
@@ -35,7 +35,7 @@ static void printEscapedJSONString(const char* str) {
     }
 }
 
-static Vector* intersectTwoPostings(Vector* list1, Vector* list2) {
+static Vector* intersectTwoPostings(const Vector* list1, const Vector* list2) {
     if (!list1 || !list2) return createPostingList();
 
     Vector* result = createPostingList();
@@ -58,7 +58,7 @@ static Vector* intersectTwoPostings(Vector* list1, Vector* list2) {
     return result;
 }
 
-Vector* intersectPostings(Vector** lists, int n) {
+Vector* intersectPostings(const Vector** lists, int n) {
     if (n == 0) return NULL;
     if (n == 1) return safeCloneList(lists[0]);
 
@@ -106,11 +106,11 @@ SearchResults* search(Index* idx, const char* query) {
         return sr;
     }
 
-    Vector** lists = malloc(n_tokens * sizeof(Vector*));
+    const Vector** lists = malloc(n_tokens * sizeof(const Vector*));
     int valid_lists = 0;
 
     for (int i = 0; i < n_tokens; i++) {
-        Vector* list = lookupTerm(idx, tokens[i]);
+        const Vector* list = lookupTerm(idx, tokens[i]);
         if (list) {
             lists[valid_lists++] = list;
         } else {

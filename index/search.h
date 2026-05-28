@@ -14,7 +14,7 @@ typedef struct {
     double  time_ms;
 } SearchResults;
 
-Vector*        intersectPostings(Vector** lists, int n);
+Vector*        intersectPostings(const Vector** lists, int n);
 SearchResults* search(Index* idx, const char* query);
 void           printResultsText(const SearchResults* sr);
 void           printResultsJSON(const SearchResults* sr);
