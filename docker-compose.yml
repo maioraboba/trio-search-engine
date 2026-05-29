@@ -1,0 +1,11 @@
+services:
+  trio-search:
+    build: .
+    container_name: trio-search-engine
+    ports:
+      - "8501:8501"
+    volumes:
+      # Связываем локальную папку data с папкой data внутри контейнера
+      # Теперь индексы и датасеты лежат на диске, а Докер просто берет их оттуда
+      - ./data:/app/data
+    restart: unless-stopped

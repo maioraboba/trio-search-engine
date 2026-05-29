@@ -111,10 +111,10 @@ void test_search() {
     avlInsert(tree, "java", 2, "doc2");
     avlInsert(tree, "rust", 3, "doc3");
 
-    Vector *result = avlSearch(tree, "python");
+    const Vector *result = avlSearch(tree, "python");
     check("avlSearch: search по ключу не NULL", result != NULL);
 
-    Vector *missing = avlSearch(tree, "go");
+    const Vector *missing = avlSearch(tree, "go");
     check("avlSearch: несуществующий ключ возвращает NULL", missing == NULL);
 
     freeAVLTree(tree);

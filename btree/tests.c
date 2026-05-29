@@ -11,6 +11,9 @@
 static int traverse_count = 0;
 
 static void assert_visit(const char* key, Vector* postings, void* ctx) {
+    (void)key;
+    (void)postings;
+    (void)ctx;
     traverse_count++;
 }
 
@@ -35,7 +38,7 @@ void test_2_single_insert(BTree* tree)
 {
     btreeInsert(tree, "linux", 101, "Intro");
     
-    Vector* result = btreeSearch(tree, "linux");
+    const Vector* result = btreeSearch(tree, "linux");
     assert(result != NULL);
     assert(result->size == 1);
     
@@ -52,7 +55,7 @@ void test_3_duplicates(BTree* tree)
     btreeInsert(tree, "linux", 102, "Advanced");
     btreeInsert(tree, "linux", 102, "Advanced Clone");
 
-    Vector* result = btreeSearch(tree, "linux");
+    const Vector* result = btreeSearch(tree, "linux");
     assert(result != NULL);
     assert(result->size == 2);
     assert(tree->root->n == 1); 

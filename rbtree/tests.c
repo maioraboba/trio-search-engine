@@ -70,10 +70,10 @@ void test_search(){
     rbInsert(tree, "java", 2, "doc2");
     rbInsert(tree, "rust", 3, "doc3");
 
-    Vector* result = rbSearch(tree, "python");
+    const Vector* result = rbSearch(tree, "python");
     check("rbSearch: существующий ключ не NULL", result != NULL);
 
-    Vector* missing = rbSearch(tree, "go");
+    const Vector* missing = rbSearch(tree, "go");
     check("rbSearch: несуществующий ключ NULL", missing == NULL);
 
     freeRBTree(tree);

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 
-BINARY = "./app.exe"
+BINARY = "./app.exe" if os.name == "nt" else "./app"
 INDEX_DIR = Path("data/indexes")
 INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
