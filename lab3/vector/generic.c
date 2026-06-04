@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../macros.h"
 #include "generic.h"
 
 // Определяем увеличивать размер или уменьшать
@@ -52,7 +51,8 @@ Vector *createVector(size_t elem_size)
 {
     Vector *vector = malloc(sizeof(Vector));
     if (vector == NULL) {
-        RETURN_ERROR("malloc error", NULL);
+        fprintf(stderr, "malloc error");
+        return NULL;
     }
 
     vector->elem_size = elem_size;
